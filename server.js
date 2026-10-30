@@ -1,10 +1,10 @@
 const express=require("express"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),
-bcrypt=require("bcryptjs"),Database=require("better-sqlite3"),crypto=require("crypto"),fs=require("fs"),path=require("path");
+bcrypt=require("bcryptjs"),{DatabaseSync:Database}=require("node:sqlite"),crypto=require("crypto"),fs=require("fs"),path=require("path");
 const app=express(),PORT=process.env.PORT||3000,ADMIN_KEY=process.env.ADMIN_KEY;
 const API_URL="https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?pageNo=1";
 const API_KEY_HEADER="X-API-Key",DB_PATH="./data/hackii.sqlite",SESSION_HOURS=24;
 if(!ADMIN_KEY||ADMIN_KEY.length<24){console.error("Set ADMIN_KEY (minimum 24 characters) in hosting environment.");process.exit(1);}
-fs.mkdirSync(path.dirname(DB_PATH),{recursive:true});const db=new Database(DB_PATH);db.pragma("journal_mode=WAL");
+fs.mkdirSync(path.dirname(DB_PATH),{recursive:true});const db=new Database(DB_PATH);db.exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;");
 db.exec(`CREATE TABLE IF NOT EXISTS members(id TEXT PRIMARY KEY,label TEXT,key_hash TEXT,active INTEGER DEFAULT 1,max_devices INTEGER,expires_at INTEGER,created_at INTEGER,last_seen INTEGER,api_override TEXT);
 CREATE TABLE IF NOT EXISTS devices(id TEXT PRIMARY KEY,member_id TEXT,device_hash TEXT,created_at INTEGER,last_seen INTEGER,UNIQUE(member_id,device_hash));
 CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,member_id TEXT,device_hash TEXT,role TEXT,expires_at INTEGER);

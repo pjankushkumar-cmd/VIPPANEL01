@@ -1,14 +1,12 @@
-# HACKII Full Server
+# HACKII Full Server — Node 26 compatible
 
-Only one environment variable is required: `ADMIN_KEY` (minimum 24 characters).
+This build removes `better-sqlite3` and uses Node.js built-in `node:sqlite`. It avoids the `node-gyp` native addon compilation failure shown in Render logs.
 
-## Render
+## Render settings
 - Build command: `npm install`
 - Start command: `npm start`
-- Environment: add only `ADMIN_KEY`
-- Add a persistent disk mounted at `/opt/render/project/src/data` to retain `data/hackii.sqlite`.
-- Open `/admin` for the admin panel.
+- Node version: Render uses Node 26.13.0 in the reported build; this project requires Node >=26.11.0.
+- Environment: only `ADMIN_KEY` (minimum 24 characters).
+- Persistent disk: mount at `/opt/render/project/src/data` to retain `data/hackii.sqlite`.
 
-The API URL, API key header (`X-API-Key`), database path (`./data/hackii.sqlite`) and session duration are configured inside `server.js`. Admin sets global/member API key values from the panel; they are stored server-side and never exposed to member browsers. Change the API header constant in `server.js` if the provider expects a different format.
-
-Member keys are bcrypt-hashed. Device caps use a browser-generated localStorage identifier, not hardware attestation; clearing browser data can register a new device. Online status means activity in the last 90 seconds. SHA-256 estimates do not guarantee random external results. SQLite is for a single server instance.
+The API URL, API key header (`X-API-Key`), database path and session duration remain configured in `server.js` / project code.
