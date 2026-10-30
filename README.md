@@ -26,3 +26,7 @@ The server proxies the configured WinGo endpoint. The member page scans up to 10
 
 ## Existing database
 This release includes schema migration for the new activity/session fields. Keep the Render Persistent Disk mounted at the same path; otherwise a redeploy may use a fresh database and existing member keys will not be present.
+
+
+## API 403 diagnostic update
+The upstream fetch now sends ordinary browser-style Accept, User-Agent, Referer, Origin and X-Requested-With headers. The server logs a short sanitized upstream rejection sample. This can resolve providers that reject bare server fetches, but it cannot override a provider's IP allowlist, access policy, geo restriction, or bot protection. If HTTP 403 persists, use an API endpoint/access method authorized by the provider or ask them to allow the Render outbound IP; do not spoof or evade access controls.

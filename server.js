@@ -293,11 +293,22 @@ app.get("/api/results",memberOnly,async(req,res)=>{
   const m=db.prepare("SELECT api_override FROM members WHERE id=?").get(req.session.member_id);
   const apiKey=m.api_override||getSetting("global_api_key");
   if(apiCache.data && now()-apiCache.at<2500) return res.json(apiCache.data);
-  const headers={"Accept":"application/json"};
+  const headers={
+    "Accept":"application/json, text/plain, */*",
+    "Accept-Language":"en-US,en;q=0.9",
+    "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Referer":"https://h5.ar-lottery01.com/",
+    "Origin":"https://h5.ar-lottery01.com",
+    "X-Requested-With":"XMLHttpRequest"
+  };
   if(apiKey) headers[RESULT_API_KEY_HEADER]=apiKey;
   try {
-    const upstream=await fetch(RESULT_API_URL,{headers,cache:"no-store",signal:AbortSignal.timeout(9000)});
-    if(!upstream.ok) return res.status(502).json({error:"Result API HTTP "+upstream.status});
+    const upstream=await fetch(RESULT_API_URL,{headers,redirect:"follow",cache:"no-store",signal:AbortSignal.timeout(9000)});
+    if(!upstream.ok) {
+      const body=(await upstream.text().catch(()=> "")).replace(/<[^>]*>/g," ").replace(/\\s+/g," ").slice(0,180);
+      console.error("Upstream result API rejected request:",upstream.status,upstream.headers.get("server")||"",body);
+      return res.status(502).json({error:"Result provider returned HTTP "+upstream.status+". The provider may be blocking Render's server IP or requiring authorized access.",providerStatus:upstream.status});
+    }
     const data=await upstream.json();
     apiCache={at:now(),data};
     logEvent(req.session.member_id,"RESULT_API_READ","Result source checked");
