@@ -1,19 +1,20 @@
 {
-  "name": "hackii-full-server",
-  "version": "1.1.0",
+  "name": "hackii-complete-server",
+  "version": "2.0.0",
   "private": true,
+  "description": "HACKII member licensing, activity audit and API-backed estimate panel",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "engines": {
-    "node": ">=26.11.0"
+    "node": ">=22"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
-    "helmet": "^8.0.0",
-    "express-rate-limit": "^7.5.0"
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0"
   }
 }
